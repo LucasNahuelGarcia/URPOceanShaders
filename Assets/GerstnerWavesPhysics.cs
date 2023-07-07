@@ -1,13 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class GerstnerWavesPhysics : MonoBehaviour
 {
     public Ocean Ocean;
     public GameObject Boat;
-    [NonReorderable][SerializeField] private Transform[] BoatForcePoints = new Transform[3];
+    [NonReorderable] [SerializeField] private Transform[] BoatForcePoints = new Transform[3];
+    [Range(0f, 1)] [SerializeField] private float positionDampen = .8f;
+    [Range(0f, 1)] [SerializeField] private float rotationDampen = .8f;
 
     public float GerstnerWaveLevelAtPoint(Vector4 wave, Vector3 Point)
     {
@@ -34,19 +38,27 @@ public class GerstnerWavesPhysics : MonoBehaviour
             point.transform.position = new Vector3(pos.x, waterLine, pos.z);
         }
 
+        Vector3 lastBoatPosition = Boat.transform.position;
+        Quaternion lastBoatRotation = Boat.transform.rotation;
+
         Vector3 a = BoatForcePoints[0].position;
         Vector3 b = BoatForcePoints[1].position;
         Vector3 c = BoatForcePoints[2].position;
 
         Vector3 ab = b - a;
         Vector3 ac = c - a;
-        Vector3 boatPosition = (a + b + c) / 3;
-        Vector3 upwardDirection = Vector3.Cross(ac,ab);
-        Vector3 forwardDirection = a - boatPosition;
+        Vector3 targetPosition = (a + b + c) / 3;
 
-        
-        Boat.transform.SetPositionAndRotation(boatPosition, Quaternion.LookRotation(forwardDirection, upwardDirection));
+        Vector3 targetUpwardDirection = Vector3.Cross(ac, ab);
+        Vector3 targetForwardDirection = a - targetPosition;
+        Quaternion targetRotation = Quaternion.LookRotation(targetForwardDirection, targetUpwardDirection);
+
+        Vector3 dampenedPosition = Vector3.Lerp(lastBoatPosition, targetPosition, positionDampen);
+        Quaternion dampenedRotation = Quaternion.Lerp(lastBoatRotation, targetRotation, rotationDampen);
+
+        Boat.transform.SetPositionAndRotation(dampenedPosition, dampenedRotation);
     }
+
 
     private float GetWaterLineAtPos(Vector3 pos)
     {

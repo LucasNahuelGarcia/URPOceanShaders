@@ -137,9 +137,9 @@ Material:
     - _Direction: {r: 0.15, g: 0.09, b: 5.82, a: -5.69}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _WaveA: {r: 1, g: 1, b: 0.1, a: 25}
-    - _WaveB: {r: 1, g: 0, b: 0.1, a: 25}
-    - _WaveC: {r: 1, g: 1, b: 0.1, a: 20}
+    - _WaveA: {r: 1, g: 1, b: 0.1, a: 100}
+    - _WaveB: {r: 1, g: 0, b: 0.1, a: 100}
+    - _WaveC: {r: 1, g: 1, b: 0.1, a: 10}
     - amplitude: {r: 25, g: 255, b: 1000, a: 4}
     - direction: {r: 1, g: 1, b: 1, a: 1}
     - phase_const: {r: 3, g: 255, b: 1000, a: 4}
