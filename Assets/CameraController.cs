@@ -17,7 +17,6 @@ public class CameraController : MonoBehaviour
 
     public void OnLook(InputAction.CallbackContext context)
     {
-        Debug.Log("OnLook");
         Vector2 delta = context.action.ReadValue<Vector2>();
 
         float rotationY = delta.x * Time.deltaTime;
@@ -32,5 +31,10 @@ public class CameraController : MonoBehaviour
             Camera.transform.localRotation = Quaternion.Euler(MaxCameraRotationX, rotation.y, rotation.z);
         else if (Camera.transform.localRotation.eulerAngles.x < MinCameraRotationX)
             Camera.transform.localRotation = Quaternion.Euler(MinCameraRotationX, rotation.y, rotation.z);
+    }
+
+    public void OnQuit(InputAction.CallbackContext context)
+    {
+        Application.Quit();
     }
 }
