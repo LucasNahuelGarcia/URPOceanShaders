@@ -7,6 +7,7 @@ Shader "LucasShaders/Ocean"
         [Header(Surface options)] // Creates a text header
         // [MainColor] allows Material.color to use the correct property
         _ReflectionBloom("ReflectionBloom", float) = 2
+        _ReflectionDistortionDistanceTreshold("ReflectionDistortionDistanceTreshold", float) = 23
         [MainColor] _ColorTintShallow("Tint Shallow", Color) = (1, 1, 1, 1)
         [MainColor] _ColorTintDeep("Tint Deep", Color) = (1, 1, 1, 1)
         _AngleThreshold("Angle Threshold", float) = 180

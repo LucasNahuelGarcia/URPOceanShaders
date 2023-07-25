@@ -34,6 +34,7 @@ struct Interpolators
 
 
 float _ReflectionBloom;
+float _ReflectionDistortionDistanceTreshold;
 float4 _ColorTintDeep;
 float4 _ColorTintShallow;
 float _AngleThreshold;
@@ -108,6 +109,15 @@ float3 getReflectionAngle(Interpolators input, InputData lightingInput)
     return -lightingInput.viewDirectionWS + 2 * dot(lightingInput.viewDirectionWS, input.normalWS) * input.normalWS;
 }
 
+float fadeIntoDistanceFunction(float distance, float distanceTreshold)
+{
+    float x = (distance - distanceTreshold) / (distanceTreshold * distanceTreshold);
+    float f = x * x;
+    if (x > 1) f = 0;
+    if (x < 0) f = 1;
+    return f;
+}
+
 float4 Fragment(Interpolators input) : SV_TARGET
 {
     InputData lightingInput = (InputData)0;
@@ -126,8 +136,10 @@ float4 Fragment(Interpolators input) : SV_TARGET
     float shallowness = angleWithUpVector * 100;
     float subsurfaceScattering = (acos(dot(lightDirection, lightingInput.viewDirectionWS))) / _AngleThreshold;
     subsurfaceScattering *= shallowness;
-    float fresnel = abs(acos(dot(input.normalWS, lightingInput.viewDirectionWS))) / 90;
+    float fresnel = abs(acos(dot(input.normalWS, lightingInput.viewDirectionWS))) / PI / 2;
     if (fresnel > 1) fresnel = 1;
+
+    float distance = length(GetWorldSpaceViewDir(input.positionWS));
 
     subsurfaceScattering = clamp(subsurfaceScattering, 0, 1);
 
@@ -146,10 +158,10 @@ float4 Fragment(Interpolators input) : SV_TARGET
     color += foam;
 
     float3 reflectionAngle = getReflectionAngle(input, lightingInput) + (float3(1, 1, 1) * (snoise(input.positionWS.xz)
-        * 0.051 * surfaceInput.smoothness));
+        * 0.051 * surfaceInput.smoothness * fadeIntoDistanceFunction(distance, _ReflectionDistortionDistanceTreshold)));
     half4 skyData = UNITY_SAMPLE_TEXCUBE(unity_SpecCube0, reflectionAngle) * _ReflectionBloom;
     float reflectiveness = fresnel * (1 - foam);
-    color = lerp(color, skyData.xyz, (reflectiveness));
+    color = lerp(color, skyData.xyz, (reflectiveness * reflectiveness));
 
     surfaceInput.albedo = color;
     surfaceInput.alpha = 1;
