@@ -136,7 +136,7 @@ float4 Fragment(Interpolators input) : SV_TARGET
     float shallowness = angleWithUpVector * 100;
     float subsurfaceScattering = (acos(dot(lightDirection, lightingInput.viewDirectionWS))) / _AngleThreshold;
     subsurfaceScattering *= shallowness;
-    float fresnel = abs(acos(dot(input.normalWS, lightingInput.viewDirectionWS))) / PI / 2;
+    float fresnel = 1 - (1+dot(input.normalWS, lightingInput.viewDirectionWS))/2;
     if (fresnel > 1) fresnel = 1;
 
     float distance = length(GetWorldSpaceViewDir(input.positionWS));
@@ -154,13 +154,13 @@ float4 Fragment(Interpolators input) : SV_TARGET
     perlinFoamPatch *= (snoise(lightingInput.positionWS.xz / 50) + 1) / 3;
     float3 foam = clamp(voronoi(lightingInput.positionWS.xz / foamSize) * perlinFoamPatch, 0, 1);
 
-    float3 color = lerp(deepColor, notDeepColor, log(depth + 1) * 3.321);
+    float3 color = lerp(deepColor, notDeepColor, depth * depth);
     color += foam;
 
     float3 reflectionAngle = getReflectionAngle(input, lightingInput) + (float3(1, 1, 1) * (snoise(input.positionWS.xz)
         * 0.051 * surfaceInput.smoothness * fadeIntoDistanceFunction(distance, _ReflectionDistortionDistanceTreshold)));
     half4 skyData = UNITY_SAMPLE_TEXCUBE(unity_SpecCube0, reflectionAngle) * _ReflectionBloom;
-    float reflectiveness = fresnel * (1 - foam);
+    float reflectiveness = fresnel * (1 - foam) ;
     color = lerp(color, skyData.xyz, (reflectiveness * reflectiveness));
 
     surfaceInput.albedo = color;

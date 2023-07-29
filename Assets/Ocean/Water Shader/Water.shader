@@ -45,8 +45,6 @@ Shader "LucasShaders/Ocean"
             ZWrite Off
 
             HLSLPROGRAM
-            // Begin HLSL code
-            // Register our programmable stage functions
 
             #pragma vertex Vertex
             #pragma fragment Fragment
